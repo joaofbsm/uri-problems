@@ -135,3 +135,6 @@ venv.bak/
 *.exe
 *.out
 *.app
+
+# Idea files
+.idea/
