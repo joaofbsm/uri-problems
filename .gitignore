@@ -133,7 +133,6 @@ venv.bak/
 
 # Executables
 *.exe
-*.out
 *.app
 
 # Idea files
