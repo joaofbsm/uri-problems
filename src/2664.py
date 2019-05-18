@@ -1,40 +1,39 @@
 """https://www.urionlinejudge.com.br/judge/pt/problems/view/2664"""
 
 
-def create_exercise_program(memo, time_remaining, current_difficulty, min_difficulty, max_difficulty):
+def create_exercise_program(time_remaining, current_difficulty):
+
+    # Border cases
+    if current_difficulty < min_difficulty or current_difficulty > max_difficulty:
+        return 0
+
+    if memo[time_remaining][current_difficulty] != 0:
+        return memo[time_remaining][current_difficulty]
+
     # Base case
     if time_remaining == 0:
-        return 1
+        memo[time_remaining][current_difficulty] = 1
+        return memo[time_remaining][current_difficulty]
 
-    qty_programs = memo[time_remaining].get(current_difficulty, 0)
+    memo[time_remaining][current_difficulty] = (create_exercise_program(time_remaining - 1, current_difficulty + 1)
+                                                + create_exercise_program(time_remaining - 1, current_difficulty - 1))
 
-    if qty_programs == 0:
-        if current_difficulty == min_difficulty:
-            qty_programs = create_exercise_program(memo, time_remaining - 1, current_difficulty + 1, min_difficulty, max_difficulty)
-        elif current_difficulty == max_difficulty:
-            qty_programs = create_exercise_program(memo, time_remaining - 1, current_difficulty - 1, min_difficulty, max_difficulty)
-        else:
-            qty_programs += create_exercise_program(memo, time_remaining - 1, current_difficulty + 1, min_difficulty, max_difficulty)
-            qty_programs += create_exercise_program(memo, time_remaining - 1, current_difficulty - 1, min_difficulty, max_difficulty)
-
-        memo[time_remaining][current_difficulty] = qty_programs
-
-    return qty_programs
+    return memo[time_remaining][current_difficulty]
 
 
-def main():
-    total_time, min_difficulty, max_difficulty = [int(i) for i in input().split()]
+mod = 1000000007
 
-    memo = [{} for _ in range(total_time)]
-    qty_programs = 0
+total_time, min_difficulty, max_difficulty = [int(i) for i in input().split()]
 
-    # Adjusts total time for 0 indexing
-    total_time -= 1
-    for i in range(min_difficulty, max_difficulty + 1):
-        qty_programs += create_exercise_program(memo, total_time, i, min_difficulty, max_difficulty)
+max_difficulty = max_difficulty - min_difficulty
+min_difficulty = 0
 
-    print((qty_programs % (10 ** 9 + 7)))
+memo = [[0 for _ in range(max_difficulty + 1)] for _ in range(total_time)]
+total_programs = 0
 
+# Adjusts total time for 0 indexing
+total_time -= 1
+for i in range(max_difficulty + 1):
+    total_programs += create_exercise_program(total_time, i)
 
-if __name__ == '__main__':
-    main()
+print(total_programs % mod)
