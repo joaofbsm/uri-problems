@@ -18,11 +18,18 @@ class Space {
 public:
 	int area, length, width;
 
+    Space(int area, int length, int width) {
+        this->area = area;
+        this->length = length;
+		this->width = width;
+    }
+
 	Space(int length, int width)	{
+		this->area = length * width;
 		this->length = length;
 		this->width = width;
-		this->area = length * width;
 	}
+
 };
 
 
@@ -62,7 +69,7 @@ Space find_large_space(int *row) {
         s.push(j);
     }
 
-    Space large_space = Space(max_length, max_width);
+    Space large_space = Space(max_area, max_length, max_width);
 
     return large_space;
 }
@@ -104,12 +111,15 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant) {
 }
 
 
-Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces) {
+Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces, int smallest_table_area, int smallest_table_dim) {
     bool is_table_fit[tables.size()] = {false};
 
     for (auto const& space: largest_spaces) {
+        if ((space.area < smallest_table_area) or (space.length < smallest_table_dim) or (space.width < smallest_table_dim)) {
+            continue;
+        }
         for (int i = 0; i < tables.size(); i++) {
-            // Only execute is table has not been fit yet
+            // Only execute if table has not been fit yet
             if (!is_table_fit[i]) {
                 Space table = tables[i];
                 if (table.area <= space.area) {
@@ -119,6 +129,11 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces)
                     }
                 }
             }
+        }
+
+        // If largest table was already fit, prevent more computations
+        if (is_table_fit[0]) {
+            return tables[0];
         }
     }
 
@@ -148,13 +163,26 @@ int main() {
     }
 
     // Read all tables as Space objects
-    int qty_tables, length, width;
+    int qty_tables, area, length, width;
     cin >> qty_tables;
     vector<Space> tables;
+    int smallest_table_dim = 1000;
+    int smallest_table_area = 1000;
     for (int i = 0; i < qty_tables; i++) {
         cin >> length >> width;
-        Space table = Space(length, width);
+        area = length * width;
+        Space table = Space(area, length, width);
         tables.push_back(table);
+
+        if (area < smallest_table_area) {
+            smallest_table_area = area;
+        }
+        if (length < smallest_table_dim) {
+            smallest_table_dim = length;
+        }
+        if (width < smallest_table_dim) {
+            smallest_table_dim = width;
+        }
     }
 
     // Sort tables by area in non-increasing order and use width as tiebreaker
@@ -163,8 +191,12 @@ int main() {
     // Get the largest spaces using the max histogram heuristic
     vector<Space> largest_spaces = get_largest_spaces(house_plant);
 
+    //for (auto const& t: largest_spaces) {
+    //    cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
+    //}
+
     // Find the largest table that fits any of these spaces
-    Space largest_table = find_largest_table_fit(tables, largest_spaces);
+    Space largest_table = find_largest_table_fit(tables, largest_spaces, smallest_table_area, smallest_table_dim);
 
     cout << largest_table.length << ' ' << largest_table.width << endl;
 }
