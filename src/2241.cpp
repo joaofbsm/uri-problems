@@ -10,113 +10,120 @@ int main() {
     cin >> table_dim >> qty_plays;
 
     // Initialize table with all 0's
-    int table[table_dim][table_dim][table_dim];
+    int table[table_dim][table_dim];
     memset(table, 0, sizeof(table));
+
+    // for (int i = 0; i < table_dim; i++) {
+    //    for (int j = 0; j < table_dim; j++) {
+    //        cout << table[i][j] << ' ';
+    //    }
+    //    cout << endl;
+    //}
 
     int l, c;
 
     // Black stones
     for (int i = 0; i < qty_plays; i++) {
         cin >> l >> c;
-        table[l][c][0] = 1;
+        table[l - 1][c - 1] = 1;
     }
+
 
     // Black stones
     for (int i = 0; i < qty_plays; i++) {
         cin >> l >> c;
-        table[l][c][0] = 2;
+        table[l - 1][c - 1] = 2;
     }
 
-    int black_points = 0;
-    int white_points = 0;
+    int black_points = qty_plays;
+    int white_points = qty_plays;
 
-    int previous_n, winner, current_value;
+    int current_value, winner;
 
     for (int n = 1; n < table_dim; n++) {
-        for (int i = 0; i < table_dim - n; i++) {
-            for (int j = 0; j < table_dim - n; j++) {
-                previous_n = n - 1;
+        for (int i = 0; i < (table_dim - n); i++) {
+            for (int j = 0; j < (table_dim - n); j++) {
                 winner = 0;
 
-                current_value = table[i][j][previous_n];
+                current_value = table[i][j];
 
                 if (current_value != 0) {
                     if (current_value == -1) {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
 
-                    if (winner == 0 or winner == current_value) {
+                    if ((winner == 0) or (winner == current_value)) {
                         winner = current_value;
                     }
                     else {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
                 }
 
-                current_value = table[i + 1][j][previous_n];
+                current_value = table[i + 1][j];
 
                 if (current_value != 0) {
                     if (current_value == -1) {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
 
-                    if (winner == 0 or winner == current_value) {
+                    if ((winner == 0) or (winner == current_value)) {
                         winner = current_value;
                     }
                     else {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
                 }
 
-                current_value = table[i][j + 1][previous_n];
+                current_value = table[i][j + 1];
 
                 if (current_value != 0) {
                     if (current_value == -1) {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
 
-                    if (winner == 0 or winner == current_value) {
+                    if ((winner == 0) or (winner == current_value)) {
                         winner = current_value;
                     }
                     else {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
                 }
 
-                current_value = table[i + 1][j + 1][previous_n];
+                current_value = table[i + 1][j + 1];
 
                 if (current_value != 0) {
                     if (current_value == -1) {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
 
-                    if (winner == 0 or winner == current_value) {
+                    if ((winner == 0) or (winner == current_value)) {
                         winner = current_value;
                     }
                     else {
-                        table[i][j][n] = -1;
+                        table[i][j] = -1;
                         continue;
                     }
                 }
 
-                table[i][j][n] = winner;
+                table[i][j] = winner;
 
-                if (winner == 1) {
+                if (table[i][j] == 1) {
                     black_points += 1;
                 }
-                else if (winner == 2) {
+                else if (table[i][j] == 2) {
                     white_points += 1;
                 }
             }
         }
     }
 
-    cout << black_points + qty_plays << ' ' << white_points + qty_plays << endl;
+    cout << black_points << ' ' << white_points << endl;
 }
