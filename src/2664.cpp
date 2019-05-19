@@ -55,6 +55,4 @@ int main() {
     }
 
     cout << qty_programs % mod << endl;
-
-    return 0;
 }
