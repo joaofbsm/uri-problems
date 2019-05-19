@@ -28,7 +28,7 @@ def find_max_area(row):
     return max_area, max_height, max_width
 
 
-def max_rectangle(n, m, house_plant):
+def get_max_areas(n, m, house_plant):
     # Memoization matrix
     memo = [[] for _ in range(n)]
 
@@ -47,30 +47,34 @@ def max_rectangle(n, m, house_plant):
             else:
                 memo[i].append(0)
 
-    # for i in range(n):
-    #     print(memo[i])
-
-    max_area = 0
-    max_height = 0
-    max_width = 0
+    max_areas = []
     for i in range(n):
         current_area, current_height, current_width = find_max_area(memo[i])
-        if current_area > max_area:
-            max_area = current_area
-            max_height = current_height
-            max_width = current_width
+        max_areas.append((current_area, current_height, current_width))
 
-    return max_area, max_height, max_width
+    max_areas.sort(key=lambda x: x[0], reverse=True)
+
+    return max_areas
 
 
-def choose_largest_table(tables, max_area, max_height, max_width):
-    for table_area, table_height, table_width in tables:
-        if table_area <= max_area:
-            # Try table with and without 90 degree rotation
-            if (table_height <= max_height and table_width <= max_width) or \
-               (table_width <= max_height and table_height <= max_width):
+def find_largest_table(tables, max_areas):
+    found_fit = [False for _ in range(len(tables))]
 
-                return table_height, table_width
+    for area, height, width in max_areas:
+        for i, fit_found in enumerate(found_fit):
+            if not fit_found:
+                table_area, table_height, table_width = tables[i]
+                if table_area <= area:
+                    if (table_height <= height and table_width <= width) or \
+                       (table_width <= height and table_height <= width):
+
+                        found_fit[i] = True
+
+    for i, fit_found in enumerate(found_fit):
+        if fit_found:
+            break
+
+    return tables[i][1], tables[i][2]
 
 
 def main():
@@ -80,10 +84,6 @@ def main():
 
     for _ in range(n):
         house_plant.append(list(input()))
-
-    # print(house_plant)
-    # print(len(house_plant), len(house_plant[0]))
-    # print(n, m)
 
     tables = []
 
@@ -95,9 +95,9 @@ def main():
     # Sort tables by area and use width as tiebreaker
     tables.sort(key=lambda x: (x[0], x[2]), reverse=True)
 
-    max_area, max_height, max_width = max_rectangle(n, m, house_plant)
+    max_areas = get_max_areas(n, m, house_plant)
 
-    print(*choose_largest_table(tables, max_area, max_height, max_width))
+    print(*find_largest_table(tables, max_areas))
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 /* https://www.urionlinejudge.com.br/judge/pt/problems/view/2241 */
+
 #include <iostream>
 #include <string.h>
 
