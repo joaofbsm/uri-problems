@@ -12,6 +12,9 @@ using namespace std;
 // House plant dimensions
 int n, m;
 
+int max_width_per_length[1001];
+int max_length_per_width[1001];
+
 
 // Space data structure used for both tables and spaces in the house
 class Space {
@@ -116,14 +119,18 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant, int smalles
         Space large_space = find_large_space(memo[i]);
         if ((smallest_table_area <= large_space.area) and
             (smallest_table_dim <= large_space.length) and
-            (smallest_table_dim <= large_space.width)) {
+            (smallest_table_dim <= large_space.width) and
+            (large_space.width > max_width_per_length[large_space.length]) and
+            (large_space.length > max_length_per_width[large_space.width])) {
             largest_spaces.push_back(large_space);
+            max_width_per_length[large_space.length] = large_space.width;
+            max_length_per_width[large_space.width] = large_space.length;
         }
     }
 
-   for (auto const& t: largest_spaces) {
-       cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
-    }
+   // for (auto const& t: largest_spaces) {
+   //     cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
+   //  }
 
     // Sort spaces using the same comparison used for tables
     sort(largest_spaces.begin(), largest_spaces.end(), comp);
@@ -251,6 +258,9 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces)
 
 int main() {
     cin >> n >> m;
+
+    memset(max_width_per_length, 0, sizeof(max_width_per_length));
+    memset(max_length_per_width, 0, sizeof(max_length_per_width));
 
     // Stores the house plant
     vector< vector<char> > house_plant;
