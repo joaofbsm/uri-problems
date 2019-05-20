@@ -97,6 +97,19 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant) {
         }
     }
 
+    // for (int i = 0; i < n; i++) {
+    //     for (int j = 0; j < m; j++) {
+    //         if (memo[i][j] > 9) {
+    //             cout << memo[i][j] << ' ';
+    //         }
+    //         else {
+    //             cout << ' ' << memo[i][j] << ' ';
+    //         }
+            
+    //     }
+    //     cout << endl;
+    // }
+
     // Find the largest empty spaces in the house
     vector<Space> largest_spaces;
     for (int i = 0; i < n; i++) {
@@ -111,13 +124,86 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant) {
 }
 
 
-Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces, int smallest_table_area, int smallest_table_dim) {
-    bool is_table_fit[tables.size()] = {false};
+vector<Space> alternative_get_largest_spaces(vector< vector<char> > house_plant, int smallest_table_area, int smallest_table_dim) {
+    int left[m];
+    int right[m];
+    int length[m];
+
+    memset(left, 0, sizeof(left));
+    memset(right, m, sizeof(right));
+    memset(length, 0, sizeof(length));
+
+    vector<Space> largest_spaces;
+
+    for (int i = 0; i < n; i++) {
+        int row_max_area = 0;
+        int cur_left = 0;
+        int cur_right = m;
+
+        int cur_area, cur_length, cur_width;
+
+        // Update length
+        for (int j = 0; j < m; j++) {
+            if (house_plant[i][j] == '.') {
+                length[j] += 1;
+            }
+            else {
+                length[j] = 0;
+            }
+        }
+
+        // Update left
+        for (int j = 0; j < m; j++) {
+            if (house_plant[i][j] == '.') {
+                left[j] = left[j] >= cur_left ? left[j] : cur_left;
+            }
+            else {
+                left[j] = 0;
+                cur_left = j + 1;
+            }
+        }
+
+        // Update right
+        for (int j = m - 1; j > -1; j--) {
+            if (house_plant[i][j] == '.') {
+                right[j] = right[j] <= cur_right ? right[j] : cur_right;
+            }
+            else {
+                right[j] = m;
+                cur_right = j;
+            }
+        }
+
+        // Update area
+        for (int j = 0; j < m; j++) {
+            cur_length = length[j];
+            cur_width = right[j] - left[j];
+            cur_area = cur_length * cur_width;
+
+            if ((row_max_area < cur_area) and
+                (smallest_table_area <= cur_area) and
+                (smallest_table_dim <= cur_length) and
+                (smallest_table_dim <= cur_width)) {
+                row_max_area = cur_area;
+                largest_spaces.push_back(Space(cur_area, cur_length, cur_width));
+            }
+        }
+    }
+
+    // Sort spaces using the same comparison used for tables
+    sort(largest_spaces.begin(), largest_spaces.end(), comp);
+
+    return largest_spaces;
+}
+
+
+Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces) {
+    bool is_table_fit[tables.size()];
+    memset(is_table_fit, false, sizeof(is_table_fit));
+
+    int tables_to_fit = tables.size();
 
     for (auto const& space: largest_spaces) {
-        if ((space.area < smallest_table_area) or (space.length < smallest_table_dim) or (space.width < smallest_table_dim)) {
-            continue;
-        }
         for (int i = 0; i < tables.size(); i++) {
             // Only execute if table has not been fit yet
             if (!is_table_fit[i]) {
@@ -126,6 +212,10 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
                     if (((table.length <= space.length) and (table.width <= space.width)) or
                         ((table.width <= space.length) and (table.length <= space.width))) {
                         is_table_fit[i] = true;
+                        tables_to_fit--;
+                        if (tables_to_fit == 0) {
+                            break;
+                        }
                     }
                 }
             }
@@ -134,6 +224,10 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
         // If largest table was already fit, prevent more computations
         if (is_table_fit[0]) {
             return tables[0];
+        }
+
+        if (tables_to_fit == 0) {
+            break;
         }
     }
 
@@ -190,13 +284,14 @@ int main() {
 
     // Get the largest spaces using the max histogram heuristic
     vector<Space> largest_spaces = get_largest_spaces(house_plant);
+    // vector<Space> largest_spaces = alternative_get_largest_spaces(house_plant, smallest_table_area, smallest_table_dim);
 
-    //for (auto const& t: largest_spaces) {
+    // for (auto const& t: largest_spaces) {
     //    cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
-    //}
+    // }
 
     // Find the largest table that fits any of these spaces
-    Space largest_table = find_largest_table_fit(tables, largest_spaces, smallest_table_area, smallest_table_dim);
+    Space largest_table = find_largest_table_fit(tables, largest_spaces);
 
     cout << largest_table.length << ' ' << largest_table.width << endl;
 }
