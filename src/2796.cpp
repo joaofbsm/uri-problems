@@ -76,7 +76,7 @@ Space find_large_space(int *row) {
 
 
 // Get the largest empty spaces in the house
-vector<Space> get_largest_spaces(vector< vector<char> > house_plant) {
+vector<Space> get_largest_spaces(vector< vector<char> > house_plant, int smallest_table_area, int smallest_table_dim) {
     // Memoization matrix
     int memo[n][m];
     memset(memo, 0, sizeof(memo));
@@ -112,9 +112,17 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant) {
 
     // Find the largest empty spaces in the house
     vector<Space> largest_spaces;
-    for (int i = 0; i < n; i++) {
+    for (int i = n; i >= 0; i--) {
         Space large_space = find_large_space(memo[i]);
-        largest_spaces.push_back(large_space);
+        if ((smallest_table_area <= large_space.area) and
+            (smallest_table_dim <= large_space.length) and
+            (smallest_table_dim <= large_space.width)) {
+            largest_spaces.push_back(large_space);
+        }
+    }
+
+   for (auto const& t: largest_spaces) {
+       cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
     }
 
     // Sort spaces using the same comparison used for tables
@@ -283,7 +291,7 @@ int main() {
     sort(tables.begin(), tables.end(), comp);
 
     // Get the largest spaces using the max histogram heuristic
-    vector<Space> largest_spaces = get_largest_spaces(house_plant);
+    vector<Space> largest_spaces = get_largest_spaces(house_plant, smallest_table_area, smallest_table_dim);
     // vector<Space> largest_spaces = alternative_get_largest_spaces(house_plant, smallest_table_area, smallest_table_dim);
 
     // for (auto const& t: largest_spaces) {
