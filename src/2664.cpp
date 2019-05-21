@@ -10,6 +10,7 @@ long long mod = 1000000007;
 long long memo[50][100000];
 
 
+// Create exercise programs in a divide and conquer manner
 long long create_exercise_program(int time_remaining, int current_difficulty, int min_difficulty, int max_difficulty) {
     // Border cases
     if (current_difficulty < min_difficulty || current_difficulty > max_difficulty) {
