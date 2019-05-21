@@ -115,7 +115,7 @@ vector<Space> get_largest_spaces(vector< vector<char> > house_plant, int smalles
 
     // Find the largest empty spaces in the house
     vector<Space> largest_spaces;
-    for (int i = n; i >= 0; i--) {
+    for (int i = n - 1; i >= 0; i--) {
         Space large_space = find_large_space(memo[i]);
         if ((smallest_table_area <= large_space.area) and
             (smallest_table_dim <= large_space.length) and
@@ -198,9 +198,13 @@ vector<Space> alternative_get_largest_spaces(vector< vector<char> > house_plant,
             if ((row_max_area < cur_area) and
                 (smallest_table_area <= cur_area) and
                 (smallest_table_dim <= cur_length) and
-                (smallest_table_dim <= cur_width)) {
+                (smallest_table_dim <= cur_width) and
+                (cur_width > max_width_per_length[cur_length]) and
+                (cur_length > max_length_per_width[cur_width])) {
                 row_max_area = cur_area;
                 largest_spaces.push_back(Space(cur_area, cur_length, cur_width));
+                max_width_per_length[cur_length] = cur_width;
+                max_length_per_width[cur_width] = cur_length;
             }
         }
     }
