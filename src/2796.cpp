@@ -10,17 +10,10 @@
 using namespace std;
 
 
-// House plant dimensions
-int n, m;
-int memo[1000][1000];
-int max_width_per_length[1000];
-int max_length_per_width[1000];
-
-
 // Space data structure used for both tables and spaces in the house
 class Space {
 public:
-	int area, length, width;
+    int area, length, width;
 
     Space() {
     }
@@ -28,16 +21,24 @@ public:
     Space(int area, int length, int width) {
         this->area = area;
         this->length = length;
-		this->width = width;
+        this->width = width;
     }
 
-	Space(int length, int width)	{
-		this->area = length * width;
-		this->length = length;
-		this->width = width;
-	}
+    Space(int length, int width)    {
+        this->area = length * width;
+        this->length = length;
+        this->width = width;
+    }
 
 };
+
+
+// House plant dimensions
+int n, m;
+int memo[1000][1000];
+int max_width_per_length[1000];
+int max_length_per_width[1000];
+vector<Space> largest_spaces;
 
 
 // Sort array of Space objects first by area and then by width
@@ -52,7 +53,7 @@ bool comp(Space const& A, Space const& B) {
 
 
 // Find the largest space considering this row using the max histogram area procedure
-Space find_large_space(int* row) {
+Space find_large_space(int *row) {
     int max_area, max_length, max_width, current_area, current_length, current_width;
     max_area = 0;
     max_length = 0;
@@ -88,26 +89,68 @@ Space find_large_space(int* row) {
 
 
 // Get the largest empty spaces in the house
-vector<Space> get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
+void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
     // Find the largest empty spaces in the house starting from the bottom
-    vector<Space> largest_spaces;
     for (int i = n - 1; i >= 0; i--) {
         Space large_space = find_large_space(memo[i]);
-        if ((smallest_table_area <= large_space.area) and
-            (smallest_table_dim <= large_space.length) and
-            (smallest_table_dim <= large_space.width) and
-            (large_space.width > max_width_per_length[large_space.length]) and
-            (large_space.length > max_length_per_width[large_space.width])) {
+        if ((large_space.area >= smallest_table_area) and
+            (large_space.length >= smallest_table_dim) and
+            (large_space.width >= smallest_table_dim) and
+            (large_space.length > max_length_per_width[large_space.width]) and
+            (large_space.width > max_width_per_length[large_space.length])) {
+            
             largest_spaces.push_back(large_space);
             max_width_per_length[large_space.length] = large_space.width;
             max_length_per_width[large_space.width] = large_space.length;
         }
     }
+}
 
-    // Sort spaces using the same comparison used for tables
-    sort(largest_spaces.begin(), largest_spaces.end(), comp);
 
-    return largest_spaces;
+// Find the largest space considering this row using the max histogram area procedure
+void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
+    for (int i = n - 1; i >= 0; i--) {
+        int *row = memo[i];
+        int max_area, max_length, max_width, current_area, current_length, current_width;
+        max_area = 0;
+        max_length = 0;
+        max_width = 0;
+
+        stack<int> s;
+
+        for (int j = 0; j < m; j++) {
+            while ((!s.empty()) and (row[s.top()] > row[j])) {
+                current_length = row[s.top()];
+                s.pop();
+                if (s.empty()) {
+                    current_width = j;
+                }
+                else {
+                    current_width = j - s.top() - 1;
+                }
+
+                current_area = current_length * current_width;
+                if (current_area > max_area) {
+                    max_area = current_area;
+                    max_length = current_length;
+                    max_width = current_width;
+
+                    Space large_space = Space(max_area, max_length, max_width);
+                    if ((large_space.area >= smallest_table_area) and
+                        (large_space.length >= smallest_table_dim) and
+                        (large_space.width >= smallest_table_dim) and
+                        (large_space.length > max_length_per_width[large_space.width]) and
+                        (large_space.width > max_width_per_length[large_space.length])) {
+                        
+                        largest_spaces.push_back(large_space);
+                        max_width_per_length[large_space.length] = large_space.width;
+                        max_length_per_width[large_space.width] = large_space.length;
+                    }
+                }
+            }
+            s.push(j);
+        }
+    }
 }
 
 
@@ -176,7 +219,6 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
 
     return largest_fitted_table;
 }
-
 
 int main() {
     ios_base::sync_with_stdio(false); 
@@ -247,7 +289,11 @@ int main() {
     }
     
     // Get the largest spaces using the max histogram heuristic
-    vector<Space> largest_spaces = get_largest_spaces(smallest_table_area, smallest_table_dim);
+    get_largest_spaces(smallest_table_area, smallest_table_dim);
+    // find_largest_spaces(smallest_table_area, smallest_table_dim);
+
+    // Sort spaces using the same comparison used for tables
+    // sort(largest_spaces.begin(), largest_spaces.end(), comp);
 
     // for (auto const& t: largest_spaces) {
     //    cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
