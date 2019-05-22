@@ -45,6 +45,7 @@ bool comp_tiebreaker(Space const& A, Space const& B) {
     return (A.area > B.area) || ((A.area == B.area) && (A.width > B.width));
 }
 
+
 // Sort array of Space objects first by area
 bool comp(Space const& A, Space const& B) {
     return (A.area > B.area);
@@ -93,6 +94,7 @@ void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
 
     // Find the largest empty spaces in the house starting from the bottom
     for (int i = n - 1; i >= 0; i--) {
+    // for (int i = 0; i < n; i++) {
         Space large_space = find_large_space(memo[i]);
 
         if (large_space.length > large_space.width) {
@@ -137,6 +139,7 @@ void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
 // Find the largest space considering this row using the max histogram area procedure
 void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
     for (int i = n - 1; i >= 0; i--) {
+    // for (int i = 0; i < n; i++) {
         int *row = memo[i];
         int max_area, max_length, max_width, max_dim, min_dim, current_area, current_length, current_width;
         max_area = 0;
@@ -263,7 +266,6 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
                                     largest_fitted_table = table;
                                 }
                             }
-
                             // Table has a bigger area
                             else {
                                 largest_fitted_table = table;
@@ -320,10 +322,11 @@ int main() {
     // Read all tables as Space objects
     int qty_tables, area, length, width;
     cin >> qty_tables;
+
     vector<Space> tables;
     Space largest_table = Space(0, 0, 0);
     int smallest_table_dim = 1000;
-    int smallest_table_area = 1000;
+    int smallest_table_area = 1000000;
     for (int i = 0; i < qty_tables; i++) {
         cin >> length >> width;
         area = length * width;
