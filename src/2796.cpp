@@ -216,8 +216,9 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
     Space table;
     Space largest_fitted_table = Space(0, 0, 0);
 
+    // Get largest dimension found in spaces to prevent processing of larger tables
     int largest_space_dim = 0;
-    for (auto const& space: largest_spaces) {
+    for (auto space: largest_spaces) {
         if (space.length > largest_space_dim) {
             largest_space_dim = space.length;
         }
@@ -231,7 +232,10 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
             // Only execute if table has not been fit yet
             if (is_table_fit[i] == 0) {
                 table = tables[i];
+
+                // Table cannot fit in any space. Mark as fit to prevent future processing.
                 if ((table.width > largest_space_dim) or (table.length > largest_space_dim)) {
+
                     is_table_fit[i] = 1;
                     tables_to_fit--;
                     if (tables_to_fit == 0) {
@@ -242,24 +246,31 @@ Space find_largest_table_fit(vector<Space> tables, vector<Space> largest_spaces,
                     }
                 }
 
+                // Initial fit check to reduce overhead
                 if (table.area <= space.area) {
+                    // Simulates 90 degree rotation
                     if (((table.length <= space.length) and (table.width <= space.width)) or
                         ((table.width <= space.length) and (table.length <= space.width))) {
                         if (table.area >= largest_fitted_table.area) {
+                            // Table is the largest possible
                             if ((table.area == largest_table.area) and (table.width == largest_table.area) and (table.length == largest_table.length)) {
                                     return largest_table;
                             }
 
+                            // Tiebreaker if area is the same as previous largest
                             if (table.area == largest_fitted_table.area) {
                                 if (table.width > largest_fitted_table.width) {
                                     largest_fitted_table = table;
                                 }
                             }
+
+                            // Table has a bigger area
                             else {
                                 largest_fitted_table = table;
                             }
-                        } 
+                        }
 
+                        // Table has been fit
                         is_table_fit[i] = 1;
                         tables_to_fit--;
                         if (tables_to_fit == 0) {
@@ -321,7 +332,7 @@ int main() {
 
         if (area >= largest_table.area) {
             if (area == largest_table.area) {
-                if (largest_table.length > length) {
+                if (largest_table.width > width) {
                     largest_table = table;
                 }
             }
