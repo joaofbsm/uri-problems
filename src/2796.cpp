@@ -107,10 +107,28 @@ void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
         if ((large_space.area >= smallest_table_area) and
             (large_space.length >= smallest_table_dim) and
             (large_space.width >= smallest_table_dim) and
-            (max_dim > max_extension_per_dim[min_dim])) {
+            (max_dim > max_extension_per_dim[min_dim]) and
+            (min_dim > max_extension_per_dim[max_dim])) {
             
             largest_spaces.push_back(large_space);
-            max_extension_per_dim[min_dim] = max_dim;
+
+            for (int k = min_dim; k > 0; k--) {
+                if (max_extension_per_dim[k] < max_dim) {
+                    max_extension_per_dim[k] = max_dim;
+                }
+                else {
+                    break;
+                }
+            }
+
+            for (int k = max_dim; k > min_dim; k--) {
+                if (max_extension_per_dim[k] < min_dim) {
+                    max_extension_per_dim[k] = min_dim;
+                }
+                else {
+                    break;
+                }
+            }
         }
     }
 }
@@ -143,49 +161,48 @@ void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
                     max_area = current_area;
                     max_length = current_length;
                     max_width = current_width;
-
-                    if (current_length > current_width) {
-                        max_dim = current_length;
-                        min_dim = current_width;
-                    }
-                    else {
-                        max_dim = current_width;
-                        min_dim = current_length;
-                    }
-
-                    Space large_space = Space(max_area, max_length, max_width);
-                    if ((large_space.area >= smallest_table_area) and
-                        (large_space.length >= smallest_table_dim) and
-                        (large_space.width >= smallest_table_dim) and
-                        (max_dim > max_extension_per_dim[min_dim]) and
-                        (min_dim > max_extension_per_dim[max_dim])) {
-                        
-                        cout << 'j' << j << ' ' << max_area << ' ' << max_length << ' ' << max_width << '\n';
-
-                        largest_spaces.push_back(large_space);
-                        max_extension_per_dim[min_dim] = max_dim;
-
-                        for (int k = min_dim; k > 0; k--) {
-                            if (max_extension_per_dim[k] < max_dim) {
-                                max_extension_per_dim[k] = max_dim;
-                            }
-                            else {
-                                break;
-                            }
-                        }
-
-                        for (int k = max_dim; k > min_dim; k--) {
-                            if (max_extension_per_dim[k] < min_dim) {
-                                max_extension_per_dim[k] = min_dim;
-                            }
-                            else {
-                                break;
-                            }
-                        }
-                    }
                 }
             }
             s.push(j);
+
+            if (max_length > max_width) {
+                max_dim = max_length;
+                min_dim = max_width;
+            }
+            else {
+                max_dim = max_width;
+                min_dim = max_length;
+            }
+
+            Space large_space = Space(max_area, max_length, max_width);
+            if ((large_space.area >= smallest_table_area) and
+                (large_space.length >= smallest_table_dim) and
+                (large_space.width >= smallest_table_dim) and
+                (max_dim > max_extension_per_dim[min_dim]) and
+                (min_dim > max_extension_per_dim[max_dim])) {
+                
+                //cout << 'j' << j << ' ' << max_area << ' ' << max_length << ' ' << max_width << '\n';
+
+                largest_spaces.push_back(large_space);
+
+                for (int k = min_dim; k > 0; k--) {
+                    if (max_extension_per_dim[k] < max_dim) {
+                        max_extension_per_dim[k] = max_dim;
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                for (int k = max_dim; k > min_dim; k--) {
+                    if (max_extension_per_dim[k] < min_dim) {
+                        max_extension_per_dim[k] = min_dim;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -329,7 +346,7 @@ int main() {
     find_largest_spaces(smallest_table_area, smallest_table_dim);
 
     // Sort spaces using the same comparison used for tables
-    // sort(largest_spaces.begin(), largest_spaces.end(), comp);
+    sort(largest_spaces.begin(), largest_spaces.end(), comp);
 
     // for (auto const& t: largest_spaces) {
     //    cout << t.area << ' ' << t.length << ' ' << t.width << '\n';
