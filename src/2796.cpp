@@ -36,8 +36,7 @@ public:
 // House plant dimensions
 int n, m;
 int memo[1000][1000];
-int max_width_per_length[1000];
-int max_length_per_width[1000];
+int max_extension_per_dim[1000];
 vector<Space> largest_spaces;
 
 
@@ -90,18 +89,28 @@ Space find_large_space(int *row) {
 
 // Get the largest empty spaces in the house
 void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
+    int max_dim, min_dim;
+
     // Find the largest empty spaces in the house starting from the bottom
     for (int i = n - 1; i >= 0; i--) {
         Space large_space = find_large_space(memo[i]);
+
+        if (large_space.length > large_space.width) {
+            max_dim = large_space.length;
+            min_dim = large_space.width;
+        }
+        else {
+            max_dim = large_space.width;
+            min_dim = large_space.length;
+        }
+
         if ((large_space.area >= smallest_table_area) and
             (large_space.length >= smallest_table_dim) and
             (large_space.width >= smallest_table_dim) and
-            (large_space.length > max_length_per_width[large_space.width]) and
-            (large_space.width > max_width_per_length[large_space.length])) {
+            (max_dim > max_extension_per_dim[min_dim])) {
             
             largest_spaces.push_back(large_space);
-            max_width_per_length[large_space.length] = large_space.width;
-            max_length_per_width[large_space.width] = large_space.length;
+            max_extension_per_dim[min_dim] = max_dim;
         }
     }
 }
@@ -111,7 +120,7 @@ void get_largest_spaces(int smallest_table_area, int smallest_table_dim) {
 void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
     for (int i = n - 1; i >= 0; i--) {
         int *row = memo[i];
-        int max_area, max_length, max_width, current_area, current_length, current_width;
+        int max_area, max_length, max_width, max_dim, min_dim, current_area, current_length, current_width;
         max_area = 0;
         max_length = 0;
         max_width = 0;
@@ -135,16 +144,23 @@ void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
                     max_length = current_length;
                     max_width = current_width;
 
+                    if (current_length > current_width) {
+                        max_dim = current_length;
+                        min_dim = current_width;
+                    }
+                    else {
+                        max_dim = current_width;
+                        min_dim = current_length;
+                    }
+
                     Space large_space = Space(max_area, max_length, max_width);
                     if ((large_space.area >= smallest_table_area) and
                         (large_space.length >= smallest_table_dim) and
                         (large_space.width >= smallest_table_dim) and
-                        (large_space.length > max_length_per_width[large_space.width]) and
-                        (large_space.width > max_width_per_length[large_space.length])) {
+                        (max_dim > max_extension_per_dim[min_dim])) {
                         
                         largest_spaces.push_back(large_space);
-                        max_width_per_length[large_space.length] = large_space.width;
-                        max_length_per_width[large_space.width] = large_space.length;
+                        max_extension_per_dim[min_dim] = max_dim;
                     }
                 }
             }
@@ -226,8 +242,7 @@ int main() {
 
     cin >> n >> m;
 
-    memset(max_width_per_length, 0, sizeof(max_width_per_length));
-    memset(max_length_per_width, 0, sizeof(max_length_per_width));
+    memset(max_extension_per_dim, 0, sizeof(max_extension_per_dim));
     memset(memo, 0, sizeof(memo));
 
     char pos;
@@ -289,8 +304,8 @@ int main() {
     }
     
     // Get the largest spaces using the max histogram heuristic
-    get_largest_spaces(smallest_table_area, smallest_table_dim);
-    // find_largest_spaces(smallest_table_area, smallest_table_dim);
+    // get_largest_spaces(smallest_table_area, smallest_table_dim);
+    find_largest_spaces(smallest_table_area, smallest_table_dim);
 
     // Sort spaces using the same comparison used for tables
     // sort(largest_spaces.begin(), largest_spaces.end(), comp);
