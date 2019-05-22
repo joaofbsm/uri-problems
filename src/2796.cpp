@@ -36,7 +36,7 @@ public:
 // House plant dimensions
 int n, m;
 int memo[1000][1000];
-int max_extension_per_dim[1000];
+int max_extension_per_dim[1001];
 vector<Space> largest_spaces;
 
 
@@ -157,10 +157,31 @@ void find_largest_spaces(int smallest_table_area, int smallest_table_dim) {
                     if ((large_space.area >= smallest_table_area) and
                         (large_space.length >= smallest_table_dim) and
                         (large_space.width >= smallest_table_dim) and
-                        (max_dim > max_extension_per_dim[min_dim])) {
+                        (max_dim > max_extension_per_dim[min_dim]) and
+                        (min_dim > max_extension_per_dim[max_dim])) {
                         
+                        cout << 'j' << j << ' ' << max_area << ' ' << max_length << ' ' << max_width << '\n';
+
                         largest_spaces.push_back(large_space);
                         max_extension_per_dim[min_dim] = max_dim;
+
+                        for (int k = min_dim; k > 0; k--) {
+                            if (max_extension_per_dim[k] < max_dim) {
+                                max_extension_per_dim[k] = max_dim;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+
+                        for (int k = max_dim; k > min_dim; k--) {
+                            if (max_extension_per_dim[k] < min_dim) {
+                                max_extension_per_dim[k] = min_dim;
+                            }
+                            else {
+                                break;
+                            }
+                        }
                     }
                 }
             }
