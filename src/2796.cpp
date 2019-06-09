@@ -45,13 +45,9 @@ bool comp_tiebreaker(Space const& A, Space const& B) {
 }
 
 
-// Sort array of Space objects first by area
-bool comp(Space const& A, Space const& B) {
-    return (A.area > B.area);
-}
-
 // Find all the useful empty spaces
 int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
+    // By starting from the bottom of the house plant we will get bigger solutions first
     for (int i = n - 1; i >= 0; i--) {
         int max_area, max_length, max_width, max_dim, min_dim, cur_area, cur_length, cur_width, starting_pos;
         max_area = 0;
@@ -59,14 +55,17 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
         max_width = 0;
         starting_pos = 0;
 
+        // Using two stacks make it more intuitive
         stack<int> height_stack;
         stack<int> pos_stack;
 
         for (int j = 0; j < m; j++) {
+            // The current rectangle can continue without a problem
             if ((height_stack.empty()) or (memo[i][j] > height_stack.top())) {
                 height_stack.push(memo[i][j]);
                 pos_stack.push(j);
             }
+            // The rectangle with current width needs to be terminated
             else if (memo[i][j] < height_stack.top()) {
                 while ((!height_stack.empty()) and (memo[i][j] < height_stack.top())) {
                     starting_pos = pos_stack.top();
@@ -76,6 +75,7 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                     height_stack.pop();
                     pos_stack.pop();
 
+                    // Optimized procedures to prevent useless spaces from being added to the array
                     if (cur_length > cur_width) {
                         min_dim = cur_width;
                         max_dim = cur_length;
@@ -84,7 +84,6 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                         min_dim = cur_length;
                         max_dim = cur_width;
                     }
-
                     if ((cur_area >= smallest_table_area) and
                         (min_dim >= smallest_table_dim) and
                         (max_dim > max_extension_per_dim[min_dim]) and
@@ -92,6 +91,7 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
 
                         large_spaces.push_back(Space(cur_area, cur_length, cur_width));
 
+                        // Update the max_extension_per_dim array for current max and min dimensions
                         for (int k = min_dim; k > 0; k--) {
                             if (max_extension_per_dim[k] < max_dim) {
                                 max_extension_per_dim[k] = max_dim;
@@ -100,7 +100,6 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                                 break;
                             }
                         }
-
                         for (int k = max_dim; k > min_dim; k--) {
                             if (max_extension_per_dim[k] < min_dim) {
                                 max_extension_per_dim[k] = min_dim;
@@ -127,6 +126,7 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
             height_stack.pop();
             pos_stack.pop();
 
+            // Optimized procedures to prevent useless spaces from being added to the array
             if (cur_length > cur_width) {
                 min_dim = cur_width;
                 max_dim = cur_length;
@@ -135,7 +135,6 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                 min_dim = cur_length;
                 max_dim = cur_width;
             }
-
             if ((cur_area >= smallest_table_area) and
                 (min_dim >= smallest_table_dim) and
                 (max_dim > max_extension_per_dim[min_dim]) and
@@ -143,6 +142,7 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
 
                 large_spaces.push_back(Space(cur_area, cur_length, cur_width));
 
+                // Update the max_extension_per_dim array for current max and min dimensions
                 for (int k = min_dim; k > 0; k--) {
                     if (max_extension_per_dim[k] < max_dim) {
                         max_extension_per_dim[k] = max_dim;
@@ -151,7 +151,6 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                         break;
                     }
                 }
-
                 for (int k = max_dim; k > min_dim; k--) {
                     if (max_extension_per_dim[k] < min_dim) {
                         max_extension_per_dim[k] = min_dim;
@@ -160,8 +159,6 @@ int find_large_spaces(int smallest_table_area, int smallest_table_dim) {
                         break;
                     }
                 }
-
-                //cout << cur_area << ' ' << cur_length << ' ' << cur_width << endl;
             }
         }
     }
@@ -254,7 +251,7 @@ int main() {
     // Read house dimensions
     cin >> n >> m;
 
-    // memset(max_extension_per_dim, 0, sizeof(max_extension_per_dim));
+    memset(max_extension_per_dim, 0, sizeof(max_extension_per_dim));
     memset(memo, 0, sizeof(memo));
 
     // Read the house already creating the memoization structure to compute the max histogram area
